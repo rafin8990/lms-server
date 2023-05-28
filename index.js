@@ -14,11 +14,26 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 const moduleCollection = client.db('lms-client').collection('modules');
 async function run() {
     try {
-
+// get all modules 
         app.get('/modules', async (req, res) => {
             const query = {};
             const result = await moduleCollection.find(query).toArray();
             res.send(result)
+        });
+
+        app.put('/modules/lessons/:index', async (req, res) => {
+            const index = parseInt(req.params.index);
+            try {
+                const result = await moduleCollection.updateOne({ index }, { $set: { unlocked: true } });
+                if (result.modifiedCount === 1) {
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(404);
+                }
+            } catch (error) {
+                console.error('Error unlocking video:', error);
+                res.status(500).json({ error: 'An error occurred' });
+            }
         })
 
     }
